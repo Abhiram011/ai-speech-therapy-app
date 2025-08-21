@@ -1,14 +1,15 @@
 from flask import Flask, request, jsonify
 from sentiment_model import analyze_with_vader, analyze_with_roberta
-from response_generator import generate_response
 from speech_to_text import transcribe_audio
+from enhanced_response_generator import generate_response
+
 import os
 import logging
 
 from flask_cors import CORS
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)  # Reduced logging for production
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
@@ -24,7 +25,6 @@ def analyze_sentiment():
             return jsonify({"error": "Missing 'text' in request body"}), 400
 
         user_text = data["text"]
-        logger.info(f"Analyzing text: {user_text[:100]}...")
 
         # Run sentiment analysis
         vader_result = analyze_with_vader(user_text)
@@ -36,8 +36,6 @@ def analyze_sentiment():
             roberta_result,
             user_text
         )
-
-        logger.info(f"Generated response: {response[:100]}...")
 
         return jsonify({
             "text": user_text,
@@ -67,15 +65,11 @@ def analyze_audio():
         file_path = "temp_audio.wav"
         file.save(file_path)
 
-        logger.info(f"Processing audio file: {file.filename}")
-
         # Transcribe speech to text
         text = transcribe_audio(file_path)
         
         if not text or text.strip() == "":
             return jsonify({"error": "Could not transcribe audio to text"}), 400
-
-        logger.info(f"Transcribed text: {text[:100]}...")
 
         # Run sentiment analysis
         vader_result = analyze_with_vader(text)
@@ -91,8 +85,6 @@ def analyze_audio():
         # Delete temp file
         if os.path.exists(file_path):
             os.remove(file_path)
-
-        logger.info(f"Generated response: {response[:100]}...")
 
         return jsonify({
             "transcribed_text": text,
@@ -119,4 +111,4 @@ def health_check():
 
 if __name__ == "__main__":
     logger.info("Starting AI Speech Therapy Backend...")
-    app.run(debug=True, host="0.0.0.0", port=5001)
+    app.run(debug=False, host="0.0.0.0", port=5001)  # Disabled debug mode for production

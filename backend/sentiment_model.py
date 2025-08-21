@@ -12,8 +12,8 @@ vader_analyzer = SentimentIntensityAnalyzer()
 try:
     roberta_pipeline = pipeline("sentiment-analysis", model="cardiffnlp/twitter-roberta-base-sentiment-latest")
 except Exception as e:
-    print(f"Warning: Could not load RoBERTa model: {e}")
-    print("Will use VADER sentiment analysis only")
+    # Warning: Could not load RoBERTa model: {e}
+    # Will use VADER sentiment analysis only
     roberta_pipeline = None
 
 def analyze_with_vader(text):
@@ -44,7 +44,7 @@ def analyze_with_roberta(text):
         else:
             return 0
     except Exception as e:
-        print(f"RoBERTa analysis failed: {e}")
+        # RoBERTa analysis failed: {e}
         # Fallback to VADER
         vader_score = analyze_with_vader(text)
         if vader_score > 0.1:

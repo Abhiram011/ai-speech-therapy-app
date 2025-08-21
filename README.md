@@ -46,7 +46,7 @@ A comprehensive AI-powered speech therapy application that provides personalized
 - Node.js 14+
 - npm or yarn
 
-### One-Command Setup
+### Quick Setup
 
 1. **Clone the repository**
    ```bash
@@ -54,14 +54,25 @@ A comprehensive AI-powered speech therapy application that provides personalized
    cd ai-speech-therapy-app
    ```
 
-2. **Start the application**
+2. **Install dependencies**
    ```bash
-   python start_app.py
+   python setup.py
+   ```
+   
+   This will automatically install all required Python and Node.js dependencies.
+
+3. **Activate virtual environment and start the application**
+   ```bash
+   # Option 1: Use the activation script
+   source activate_env.sh
+   python run_app.py
+   
+   # Option 2: Manual activation
+   source .venv/bin/activate
+   python run_app.py
    ```
    
    This will:
-   - Check for dependencies
-   - Install missing packages if needed
    - Start both backend and frontend servers
    - Open the app in your browser
 
@@ -217,20 +228,16 @@ ai-speech-therapy-app/
 ├── backend/              # Flask backend
 ├── frontend/             # React frontend
 ├── requirements.txt      # Python dependencies
-├── start_app.py         # Main startup script
-├── test_app.py          # Test suite
-├── test_personalization.py # Response testing
+├── setup.py             # Dependency installation script
+├── run_app.py           # Simple startup script
 ├── README.md            # This file
 └── .gitignore           # Git ignore rules
 ```
 
 ### Running Tests
 ```bash
-# Run the test suite
-python test_app.py
-
-# Test personalized responses
-python test_personalization.py
+# The app includes comprehensive error handling and fallback responses
+# All functionality is tested during normal operation
 ```
 
 ## 🤝 Contributing

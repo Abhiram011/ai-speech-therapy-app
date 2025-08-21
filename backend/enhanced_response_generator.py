@@ -38,11 +38,11 @@ def get_response_generator():
     
     # Skip model loading in test mode
     if is_test_mode():
-        print("Test mode: Skipping heavy model loading")
+        # Test mode: Skipping heavy model loading
         return None, None, None
     
     try:
-        print("Loading Blenderbot-400M-distill model...")
+        # Loading Blenderbot-400M-distill model...
         
         # Load tokenizer
         tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
@@ -67,12 +67,12 @@ def get_response_generator():
         _cached_model = model
         _cached_device = device
         
-        print("Blenderbot-400M-distill model loaded successfully!")
+        # Blenderbot-400M-distill model loaded successfully!
         return tokenizer, model, device
         
     except Exception as e:
-        print(f"Error loading Blenderbot-400M-distill model: {e}")
-        print("Will use fallback responses only")
+        # Error loading Blenderbot-400M-distill model: {e}
+        # Will use fallback responses only
         _model_loading_failed = True
         return None, None, None
 
@@ -160,34 +160,34 @@ def filter_problematic_response(response):
     self_refs = ['i am', "i'm a", 'i work as', 'i do', 'my job', 'my profession', 'i study', "i'm studying", 'i work for', 'analyst', 'assistant', 'software company']
     for ref in self_refs:
         if ref in response_lower:
-            print(f"Filtered out self-reference: '{ref}' in response")
+            # Filtered out self-reference: '{ref}' in response
             return None
     
     # Check for work/profession questions
     work_questions = ['what do you do', 'what do you work', "what's your job", "what's your profession", 'what do you do for work', 'what do you do for a living', "what's your occupation"]
     for question in work_questions:
         if question in response_lower:
-            print(f"Filtered out work question: '{question}' in response")
+            # Filtered out work question: '{question}' in response
             return None
     
     # Check for random assumptions about pets, hobbies, etc.
     random_assumptions = ['what kind of pets', 'do you have pets', 'what pets', 'what hobbies', 'what do you like to do', 'what do you enjoy', 'what do you do for fun', 'what are your interests', 'do you have any pets', 'do you have a pet', 'do you have pets']
     for assumption in random_assumptions:
         if assumption in response_lower:
-            print(f"Filtered out random assumption: '{assumption}' in response")
+            # Filtered out random assumption: '{assumption}' in response
             return None
     
     # Check for generic, non-contextual responses
     generic_responses = ['hello', 'hi', 'how are you', 'that is nice', 'that is good', 'thank you', 'good job', 'well done', 'that is great']
     for generic in generic_responses:
         if generic in response_lower and len(response_lower.split()) < 5:
-            print(f"Filtered out generic response: '{generic}' in response")
+            # Filtered out generic response: '{generic}' in response
             return None
     
     # Check for responses that just repeat the user's input
     user_words = set(response_lower.split())
     if len(user_words) < 3:
-        print("Filtered out response that's too short/repetitive")
+        # Filtered out response that's too short/repetitive
         return None
     
     return response
@@ -231,7 +231,7 @@ def generate_ai_response(user_text, tokenizer, model, device):
         
         inputs = tokenizer([prompt], return_tensors='pt', padding=True, truncation=True, max_length=128)
         inputs = {k: v.to(device) for k, v in inputs.items()}
-        print("About to generate response with Blenderbot-400M-distill...")
+        # About to generate response with Blenderbot-400M-distill...
         with torch.no_grad():
             output_ids = model.generate(
                 **inputs,
@@ -243,9 +243,9 @@ def generate_ai_response(user_text, tokenizer, model, device):
                 eos_token_id=tokenizer.eos_token_id,
                 repetition_penalty=1.1
             )
-        print("Model generation complete.")
+        # Model generation complete.
         response = tokenizer.decode(output_ids[0], skip_special_tokens=True)
-        print(f"Raw model output: {response}")
+        # Raw model output: {response}
         
         # Remove the prompt from the response if present
         if response.lower().startswith(prompt.lower()):
@@ -256,10 +256,10 @@ def generate_ai_response(user_text, tokenizer, model, device):
         if filtered_response:
             return filtered_response.strip()
         else:
-            print("Response filtered out due to problematic content")
+            # Response filtered out due to problematic content
             return None
     except Exception as e:
-        print(f"Error generating Blenderbot-400M-distill response: {e}")
+        # Error generating Blenderbot-400M-distill response: {e}
         return None
 
 def score_response_quality(response, sentiment_score):
@@ -561,7 +561,7 @@ def generate_response(vader_score, roberta_score, user_text):
     # First, try to get a contextual response based on specific patterns
     contextual_response = get_contextual_response(user_text)
     if contextual_response:
-        print("Using contextual response based on user input patterns")
+        # Using contextual response based on user input patterns
         return contextual_response
     
     # Try to get AI-generated response (only if contextual matching failed)
@@ -573,34 +573,32 @@ def generate_response(vader_score, roberta_score, user_text):
             if ai_response:
                 # Score the AI response
                 quality_score = score_response_quality(ai_response, overall_score)
-                print(f"AI Response Quality Score: {quality_score}")
-                print(f"AI Response: {ai_response}")
+                # Score the AI response
+                quality_score = score_response_quality(ai_response, overall_score)
                 
                 # Use AI response only if it meets very high quality threshold
                 if quality_score >= 10:  # Much higher threshold
-                    print(f"Using AI response (quality: {quality_score})")
                     return ai_response
                 else:
-                    print(f"AI response quality too low ({quality_score}), using fallback")
+                    pass  # Use fallback response
         except Exception as e:
-            print(f"AI response generation failed: {e}")
-            print("Using fallback response")
+            pass  # Use fallback response
     
     # Check for specific requests and provide targeted responses
     user_text_lower = user_text.lower()
     
     # Check for relaxation technique requests
     if any(keyword in user_text_lower for keyword in ['relax', 'relaxing', 'calm', 'stress', 'anxiety', 'breathing', 'meditation', 'technique']):
-        print("Using relaxation techniques response")
+        # Using relaxation techniques response
         return random.choice(RELAXATION_TECHNIQUES)
     
     # Check for coping strategy requests
     if any(keyword in user_text_lower for keyword in ['cope', 'coping', 'deal with', 'handle', 'manage', 'strategy', 'help me']):
-        print("Using coping strategies response")
+        # Using coping strategies response
         return random.choice(COPING_STRATEGIES)
     
     # Fallback to sentiment-based responses with personalization
-    print("Using enhanced fallback response")
+    # Using enhanced fallback response
     details = extract_user_details(user_text)
     
     if overall_score > 0.3:
